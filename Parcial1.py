@@ -6,25 +6,32 @@ def agregar_estudiante(lista):
     nombre = input("Nombre: ")
     edad = int(input("Edad: "))
     nota = float(input("Nota: "))
-    lista.append({"nombre": nombre, "edad": edad, "nota": nota})
+    estudiante = {"nombre": nombre, "edad": edad, "nota": nota}
+    lista.append(estudiante)
 
 def promedio(lista):
-    return sum(est["nota"] for est in lista) / len(lista) if lista else 0.0
+    suma = 0
+    for est in lista:
+        suma = suma + est["nota"]
+    return suma / len(lista)
 
 def mejor_estudiante(lista):
-    est = max(lista, key=lambda x: x["nota"])
-    return est["nombre"], est["nota"], est["edad"]
+    mejor = lista[0]
+    for est in lista:
+        if est["nota"] > mejor["nota"]:
+            mejor = est
+    return mejor["nombre"], mejor["nota"], mejor["edad"]
 
 estudiantes = []
 cantidad = int(input("¿Cuántos estudiantes desea registrar?: "))
-for _ in range(cantidad):
+for i in range(cantidad):
     agregar_estudiante(estudiantes)
 
 nombre, nota, edad = mejor_estudiante(estudiantes)
 
-print(f"\nTotal estudiantes: {len(estudiantes)}")
-print(f"Promedio general: {promedio(estudiantes):.1f}")
-print(f"Mejor estudiante: {nombre} – {nota} – {edad}")
+print("\nTotal estudiantes:", len(estudiantes))
+print("Promedio general:", promedio(estudiantes))
+print("Mejor estudiante:", nombre, "–", nota, "–", edad)
 
 #Ejercicio 2
 
@@ -35,15 +42,19 @@ def buscar(inventario, codigo):
     return None
 
 def valor_total(inventario):
-    return sum(precio * cantidad for _, _, precio, cantidad in inventario)
+    total = 0
+    for prod in inventario:
+        precio = prod[2]
+        cantidad = prod[3]
+        total = total + (precio * cantidad)
+    return total
 
 def actualizar_stock(inventario, codigo, nueva_cantidad):
-    for i, prod in enumerate(inventario):
-        if prod[0] == codigo:
-            temp = list(prod)
+    for i in range(len(inventario)):
+        if inventario[i][0] == codigo:
+            temp = list(inventario[i])
             temp[3] = nueva_cantidad
             inventario[i] = tuple(temp)
-            break
 
 inventario = [
     ("P001", "Laptop Gaming pro player", 800.0, 5),
@@ -57,9 +68,14 @@ inventario = [
 actualizar_stock(inventario, "P002", 20)
 
 print("Inventario actual:")
-print(f"{'Código':<8} {'Nombre':<10} {'Precio':<10} {'Cantidad':<10} {'Valor Total':<10}")
-for cod, nom, prec, cant in inventario:
-    print(f"{cod:<8} {nom:<10} {prec:<10.2f} {cant:<10} {prec * cant:<10.2f}")
+print("Código\tNombre\t\t\tPrecio\tCantidad\tValor Total")
+for prod in inventario:
+    cod = prod[0]
+    nom = prod[1]
+    prec = prod[2]
+    cant = prod[3]
+    v_total = prec * cant
+    print(f"{cod}\t{nom}\t{prec}\t{cant}\t\t{v_total}")
 
 #Ejercicio 3
 
@@ -70,24 +86,45 @@ ventas = {
 }
 
 def total_mes(ventas, mes):
-    return sum(ventas[mes])
+    suma = 0
+    for v in ventas[mes]:
+        suma = suma + v
+    return suma
 
 def promedio_general(ventas):
-    todas = [v for lista in ventas.values() for v in lista]
-    return sum(todas) / len(todas)
+    suma_total = 0
+    contador = 0
+    for mes in ventas:
+        for v in ventas[mes]:
+            suma_total = suma_total + v
+            contador = contador + 1
+    return suma_total / contador
 
 def mejor_mes(ventas):
-    return max(ventas, key=lambda m: total_mes(ventas, m))
+    mayor_total = 0
+    mes_mayor = ""
+    for mes in ventas:
+        total = total_mes(ventas, mes)
+        if total > mayor_total:
+            mayor_total = total
+            mes_mayor = mes
+    return mes_mayor
 
 def filtrar_ventas_altas(ventas, limite):
-    return [v for lista in ventas.values() for v in lista if v >= limite]
+    altas = []
+    for mes in ventas:
+        for v in ventas[mes]:
+            if v >= limite:
+                altas.append(v)
+    return altas
 
 limite_ingresado = 1500
 
 print("Total por mes:")
-print(f"Enero: {total_mes(ventas, 'enero')}")
-print(f"Febrero: {total_mes(ventas, 'febrero')}")
-print(f"Marzo: {total_mes(ventas, 'marzo')}")
-print(f"\nPromedio general trimestral: {promedio_general(ventas):.2f}")
-print(f"\nMejor mes: {mejor_mes(ventas).capitalize()}")
-print(f"\nVentas mayores al límite ingresado: {filtrar_ventas_altas(ventas, limite_ingresado)}")
+print("Enero:", total_mes(ventas, "enero"))
+print("Febrero:", total_mes(ventas, "febrero"))
+print("Marzo:", total_mes(ventas, "marzo"))
+
+print("\nPromedio general trimestral:", promedio_general(ventas))
+print("\nMejor mes:", mejor_mes(ventas))
+print("\nVentas mayores al límite ingresado:", filtrar_ventas_altas(ventas, limite_ingresado))
